@@ -1,0 +1,31 @@
+    
+    @HttpPost
+    //Name and ProductCode will come from external system as a input
+    global static ProductDetail createProducts( String Name, String ProductCode){
+        //Create an instance of products
+        Product__c prod = new Product__c();
+        ProductDetail response = new ProductDetail();
+        //Map the input params to name and productCode
+        prod.Name = Name;
+        prod.Product_Code__c = ProductCode;
+        
+        if(string.isBlank(prod.Name)){
+            response.message = 'Product Name is required';
+            response.success= false;   
+        }    else{
+            //insert the product
+            insert prod;
+            response.success = true;
+            response.message = 'Product Inserted successfully';
+            response.productId = prod.Id;
+            response.productName =  prod.Name; 
+            response.productCode = prod.Product_code__c;
+            
+           
+            
+        }
+        
+        
+        //Return this product to the third party system as a response
+        return response;  
+    }
