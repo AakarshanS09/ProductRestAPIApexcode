@@ -1,0 +1,48 @@
+ @HttpPatch
+    //Name and ProductCode will come from external system as a input
+    global static ProductDetail updateProducts( String Name, String ProductCode){
+        
+        RestRequest req = RestContext.request;
+        RestResponse res = RestContext.response;
+        
+        //String prdtRequestURI = req.requestURI;
+        
+        String prodId = req.requestURI.substring(req.requestURI.lastIndexOf('/')+1);
+        
+        //String requestBody = req.requestBody.toString();
+        ProductDetail response = new ProductDetail();
+             
+        //Create an instance of products
+        List<Product__c> prod = new List <Product__c>();
+
+        //Map the input params to Id, name and productCode 
+        
+        if (string.isBlank(prodId)){
+            system.debug('prodId == ' + prodId);
+            response.message = 'Product ID is required';
+            response.success= false;
+        }else{
+            prod = [Select Id, Name, Product_Code__c From Product__c Where Id =: prodId];
+            if(prod.isEmpty()){
+                response.message = 'There is no Product with the Id';
+                response.success=false;
+            }else{
+                prod[0].Id = prodId;
+                prod[0].Name = Name;
+                prod[0].Product_Code__c = ProductCode;
+                response.success = true;
+                response.message = 'Product Updated successfully';
+                response.productId = prod[0].Id;
+                response.productName =  prod[0].Name;
+                response.productCode = prod[0].Product_code__c;
+                res.statusCode = 200; 
+                
+            }
+            
+        }
+        
+        //update the product
+        update prod;
+        //Return this product to the third party system as a response
+        return response; 
+    }  
